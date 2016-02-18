@@ -1163,8 +1163,18 @@ constraint_item :
         ConExpr c($2, $4);
         if (!pp->hadError) {
           try {
-            if ($2 == std::string("set_scenario_var")) {
+            if ($2 == std::string("setup_stochastic")) {
               pp->fg->scenario = pp->fg->iv[c[0]->getIntVar()];
+              AST::Array* a = c[1]->getArray();
+              pp->fg->firstStageVars.growTo(a->a.size());
+              for (int i=a->a.size(); i--;) {
+                if (a->a[i]->isIntVar()) {
+                  pp->fg->firstStageVars[i] = pp->fg->iv[a->a[i]->getIntVar()];
+                } else {
+                  int value = a->a[i]->getInt();
+                  pp->fg->firstStageVars[i] = getConstant(value);
+                }
+              }              
             } else {
               pp->fg->postConstraint(c, $6);
             }

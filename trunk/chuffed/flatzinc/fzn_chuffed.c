@@ -83,7 +83,7 @@ int main(int argc, char** argv) {
 		FlatZinc::solve(std::string(argv[1]));
 	}
 
-	engine.solve(FlatZinc::s, FlatZinc::s->scenario);
+	engine.solve(FlatZinc::s, FlatZinc::s->scenario, FlatZinc::s->firstStageVars);
 
 	return 0;
 }

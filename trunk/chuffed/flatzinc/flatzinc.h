@@ -260,6 +260,8 @@ namespace FlatZinc {
     std::vector<bool> bv_introduced;
 
 		IntVar* scenario;
+		vec<IntVar*> firstStageVars;
+		vec<vec<int> > firstStageSolutions;
 
 		AST::Array* output;
 

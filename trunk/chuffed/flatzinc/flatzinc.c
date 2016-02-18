@@ -345,6 +345,13 @@ namespace FlatZinc {
 	}
 
 	void FlatZincSpace::print() {
+		firstStageSolutions.growTo(scenario->getVal());
+		vec<int>& x = firstStageSolutions[scenario->getVal()-1];
+		x.growTo(firstStageVars.size());
+		for (int i=0; i<firstStageVars.size(); i++) {
+			x[i] = firstStageVars[i]->getVal();
+		}
+		
 		if (output == NULL) return;
 		for (unsigned int i=0; i< output->a.size(); i++) {
 			AST::Node* ai = output->a[i];

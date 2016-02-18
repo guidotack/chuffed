@@ -91,7 +91,7 @@ public:
 
 	// Interface methods
 	RESULT search();
-	void solve(Problem *p, IntVar* scVar = NULL);
+	void solve(Problem *p, IntVar* scVar = NULL, const vec<IntVar*>& firstStageVars = vec<IntVar*>());
 
 	// Stats
 	void printStats();

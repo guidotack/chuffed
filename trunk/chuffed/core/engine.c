@@ -8,6 +8,7 @@
 #include <chuffed/mip/mip.h>
 #include <chuffed/parallel/parallel.h>
 #include <chuffed/ldsb/ldsb.h>
+#include <chuffed/flatzinc/flatzinc.h>
 
 Engine engine;
 
@@ -327,7 +328,7 @@ RESULT Engine::search() {
 	}
 }
 
-void Engine::solve(Problem *p, IntVar* scVar) {
+void Engine::solve(Problem *p, IntVar* scVar, const vec<IntVar*>& firstStageVars) {
 	problem = p;
 
 	init();
@@ -339,34 +340,49 @@ void Engine::solve(Problem *p, IntVar* scVar) {
 
 	if (!so.parallel) {
 		// sequential
+
 		
 		if (scVar) {
+			FlatZinc::FlatZincSpace* fzs = static_cast<FlatZinc::FlatZincSpace*>(p);
 			int minScenario = scVar->getMin();
 			int maxScenario = scVar->getMax();
-			for (int scenario = minScenario; scenario <= maxScenario; scenario++) {
-				assumptions.clear();
-				assumptions.push(toInt(scVar->getLit(scenario,1)));
-				solutions = 0;
-				sat.btToLevel(0);
-				sat.confl = NULL;
-				status = search();
-				switch (status) {
-				case RES_GUN:
-					printf("=====SCENARIO UNSATISFIABLE=====\n");
-					goto scenarios_done;
-				case RES_LUN:
-					if (solutions > 0) {
-						printf("==========\n");
-					} else {
+			bool lnsDone = false;
+			while (!lnsDone) {
+				for (int scenario = minScenario; scenario <= maxScenario; scenario++) {
+					assumptions.clear();
+					assumptions.push(toInt(scVar->getLit(scenario,1)));
+					solutions = 0;
+					sat.btToLevel(0);
+					sat.confl = NULL;
+					status = search();
+					switch (status) {
+					case RES_GUN:
 						printf("=====SCENARIO UNSATISFIABLE=====\n");
 						goto scenarios_done;
+					case RES_LUN:
+						if (solutions > 0) {
+							printf("==========\n");
+						} else {
+							printf("=====SCENARIO UNSATISFIABLE=====\n");
+							goto scenarios_done;
+						}
+						break;
+					default: NEVER;
 					}
-					break;
-				default: NEVER;
 				}
-			}
 		scenarios_done:
-		;
+				if (firstStageVars.size()==0)
+					break;
+				// TODO: do the LNS-style stuff here
+			  for (unsigned int i=0; i<fzs->firstStageSolutions.size(); i++) {
+			    vec<int>& x = fzs->firstStageSolutions[i];
+			    for (unsigned int j=0; j<x.size(); j++) {
+			      std::cout << x[j] << " ";
+			    }
+			    std::cout << "\n";
+			  }
+				lnsDone = true;
+			}
 		} else {		
 			status = search();
 			if (status == RES_GUN) {
