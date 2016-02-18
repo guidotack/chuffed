@@ -91,7 +91,7 @@ public:
 
 	// Interface methods
 	RESULT search();
-	void solve(Problem *p);
+	void solve(Problem *p, IntVar* scVar = NULL);
 
 	// Stats
 	void printStats();

@@ -72,7 +72,7 @@ namespace FlatZinc {
 
   FlatZincSpace::FlatZincSpace(int intVars, int boolVars, int setVars) :
 		intVarCount(0), boolVarCount(0), iv(intVars), iv_introduced(intVars),
-    bv(boolVars), bv_introduced(boolVars), output(NULL) { s = this; }
+    bv(boolVars), bv_introduced(boolVars), scenario(NULL), output(NULL) { s = this; }
 
 	void FlatZincSpace::newIntVar(IntVarSpec* vs) {
 		if (vs->alias) {

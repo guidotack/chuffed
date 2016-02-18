@@ -1163,7 +1163,11 @@ constraint_item :
         ConExpr c($2, $4);
         if (!pp->hadError) {
           try {
-            pp->fg->postConstraint(c, $6);
+            if ($2 == std::string("set_scenario_var")) {
+              pp->fg->scenario = pp->fg->iv[c[0]->getIntVar()];
+            } else {
+              pp->fg->postConstraint(c, $6);
+            }
           } catch (FlatZinc::Error& e) {
             yyerror(pp, e.toString().c_str());
           }

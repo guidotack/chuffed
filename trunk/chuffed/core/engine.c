@@ -87,7 +87,9 @@ inline bool Engine::constrain() {
 
 	if (so.mip) mip->setObjective(best_sol);
 
-	return (opt_type ? opt_var->setMin(best_sol+1) : opt_var->setMax(best_sol-1));
+  Lit p = opt_type ? opt_var->getLit(best_sol+1, 2) : opt_var->getLit(best_sol-1, 3);
+	assumptions.push(toInt(p));
+	return true;
 }
 
 bool Engine::propagate() {
@@ -325,7 +327,7 @@ RESULT Engine::search() {
 	}
 }
 
-void Engine::solve(Problem *p) {
+void Engine::solve(Problem *p, IntVar* scVar) {
 	problem = p;
 
 	init();
@@ -337,12 +339,42 @@ void Engine::solve(Problem *p) {
 
 	if (!so.parallel) {
 		// sequential
-		status = search();
-		if (status == RES_GUN) {
-			if (solutions > 0)
-				printf("==========\n");
-			else
-				printf("=====UNSATISFIABLE=====\n");
+		
+		if (scVar) {
+			int minScenario = scVar->getMin();
+			int maxScenario = scVar->getMax();
+			for (int scenario = minScenario; scenario <= maxScenario; scenario++) {
+				assumptions.clear();
+				assumptions.push(toInt(scVar->getLit(scenario,1)));
+				solutions = 0;
+				sat.btToLevel(0);
+				sat.confl = NULL;
+				status = search();
+				switch (status) {
+				case RES_GUN:
+					printf("=====SCENARIO UNSATISFIABLE=====\n");
+					goto scenarios_done;
+				case RES_LUN:
+					if (solutions > 0) {
+						printf("==========\n");
+					} else {
+						printf("=====SCENARIO UNSATISFIABLE=====\n");
+						goto scenarios_done;
+					}
+					break;
+				default: NEVER;
+				}
+			}
+		scenarios_done:
+		;
+		} else {		
+			status = search();
+			if (status == RES_GUN) {
+				if (solutions > 0)
+					printf("==========\n");
+				else
+					printf("=====UNSATISFIABLE=====\n");
+			}
 		}
 	} else {
 		// parallel

@@ -136,7 +136,7 @@
 
 #if ! defined YYSTYPE && ! defined YYSTYPE_IS_DECLARED
 typedef union YYSTYPE
-#line 365 "flatzinc/parser.yxx"
+#line 365 "parser.yxx"
 { int iValue; char* sValue; bool bValue; double dValue;
          std::vector<int>* setValue;
          FlatZinc::AST::SetLit* setLit;
@@ -150,8 +150,8 @@ typedef union YYSTYPE
          FlatZinc::AST::Node* arg;
          FlatZinc::AST::Array* argVec;
        }
-/* Line 1489 of yacc.c.  */
-#line 155 "flatzinc/parser.tab.h"
+/* Line 1529 of yacc.c.  */
+#line 155 "parser.tab.h"
 	YYSTYPE;
 # define yystype YYSTYPE /* obsolescent; will be withdrawn */
 # define YYSTYPE_IS_DECLARED 1
